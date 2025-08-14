@@ -95,8 +95,9 @@ async def generate_qr_code(
         qr_code = merchant_service.generate_qr_code(merchant_id, qr_request, db)
         qr_data = merchant_service.generate_qr_data(qr_code)
         
-        # In production, you'd generate actual QR code image
-        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?data={qr_data}&size=200x200"
+        # Generate QR code image with URL encoding
+        import urllib.parse
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?data={urllib.parse.quote(qr_data)}&size=200x200"
         
         return QRCodeResponse(
             qr_code_id=qr_code.qr_code_id,
