@@ -1,0 +1,12 @@
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "uvicorn main:app --host 0.0.0.0 --port $PORT"
+healthcheckPath = "/api/v1/analytics/dashboard"
+healthcheckTimeout = 100
+restartPolicyType = "always"
+
+[environments.production]
+DATABASE_URL = "${{DATABASE_URL}}"
+DEBUG = "false"
