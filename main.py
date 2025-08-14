@@ -17,6 +17,7 @@ from app.services.api_gateway import APIGateway
 from app.services.risk_engine import RiskEngine
 from app.services.payment_orchestrator import PaymentOrchestrator
 from app.services.merchant_service import MerchantService
+from app.api.service_endpoints import router as service_router
 
 # FastAPI App
 app = FastAPI(
@@ -32,6 +33,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include service endpoints
+app.include_router(service_router)
 
 # Initialize services
 api_gateway = APIGateway()
@@ -399,6 +403,15 @@ async def merchant_dashboard():
             return HTMLResponse(content=f.read())
     except FileNotFoundError:
         return HTMLResponse(content="<h1>Merchant Dashboard</h1><p>Dashboard loading...</p>")
+
+@app.get("/services", response_class=HTMLResponse)
+async def services_dashboard():
+    """Serve the national services dashboard"""
+    try:
+        with open("app/static/services-dashboard.html", "r") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Services Dashboard</h1><p>Dashboard loading...</p>")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fast Pay - National Services Platform 🇸🇿</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3e%3crect width='300' height='40' fill='%235B9BD5'/%3e%3crect y='40' width='300' height='40' fill='%23FFD700'/%3e%3crect y='80' width='300' height='40' fill='%23DC143C'/%3e%3crect y='120' width='300' height='40' fill='%23FFD700'/%3e%3crect y='160' width='300' height='40' fill='%235B9BD5'/%3e%3cellipse cx='150' cy='100' rx='45' ry='30' fill='%23000000'/%3e%3cellipse cx='150' cy='100' rx='40' ry='25' fill='%23FFFFFF'/%3e%3crect x='140' y='85' width='20' height='30' fill='%23000000'/%3e%3cline x1='120' y1='100' x2='95' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cline x1='180' y1='100' x2='205' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cpolygon points='95,95 90,100 95,105' fill='%23A0522D'/%3e%3cpolygon points='205,95 210,100 205,105' fill='%23A0522D'/%3e%3ccircle cx='90' cy='100' r='8' fill='%23654321'/%3e%3ccircle cx='210' cy='100' r='8' fill='%23654321'/%3e%3ctext x='150' y='105' text-anchor='middle' font-family='serif' font-size='20' font-weight='bold' fill='%23FFD700'%3eE%3c/text%3e%3c/svg%3e">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3e%3crect width='300' height='40' fill='%235B9BD5'/%3e%3crect y='40' width='300' height='40' fill='%23FFD700'/%3e%3crect y='80' width='300' height='40' fill='%23DC143C'/%3e%3crect y='120' width='300' height='40' fill='%23FFD700'/%3e%3crect y='160' width='300' height='40' fill='%235B9BD5'/%3e%3c/svg%3e") repeat;
+            background-size: 120px 80px;
+            opacity: 0.1;
+            animation: float 25s infinite linear;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .header-content {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .logo {
+            width: 64px;
+            height: 64px;
+            background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3e%3crect width='300' height='40' fill='%235B9BD5'/%3e%3crect y='40' width='300' height='40' fill='%23FFD700'/%3e%3crect y='80' width='300' height='40' fill='%23DC143C'/%3e%3crect y='120' width='300' height='40' fill='%23FFD700'/%3e%3crect y='160' width='300' height='40' fill='%235B9BD5'/%3e%3cellipse cx='150' cy='100' rx='45' ry='30' fill='%23000000'/%3e%3cellipse cx='150' cy='100' rx='40' ry='25' fill='%23FFFFFF'/%3e%3crect x='140' y='85' width='20' height='30' fill='%23000000'/%3e%3cline x1='120' y1='100' x2='95' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cline x1='180' y1='100' x2='205' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cpolygon points='95,95 90,100 95,105' fill='%23A0522D'/%3e%3cpolygon points='205,95 210,100 205,105' fill='%23A0522D'/%3e%3ccircle cx='90' cy='100' r='8' fill='%23654321'/%3e%3ccircle cx='210' cy='100' r='8' fill='%23654321'/%3e%3ctext x='150' y='105' text-anchor='middle' font-family='serif' font-size='20' font-weight='bold' fill='%23FFD700'%3eE%3c/text%3e%3c/svg%3e") center/cover;
+            border-radius: 12px;
+            border: 3px solid rgba(255,255,255,0.3);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            font-weight: 500;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .container { 
+            max-width: 1400px; 
+            margin: 0 auto; 
+            padding: 2rem; 
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .service-category {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .service-category::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+        }
+        
+        .service-category:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.35);
+        }
+        
+        .service-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-icon {
+            font-size: 3rem;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #FFD700 0%, #5B9BD5 100%);
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .service-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .service-description {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .service-options {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        
+        .service-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
+            border-radius: 12px;
+            border: 2px solid #e5e7eb;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .service-option:hover {
+            border-color: #5B9BD5;
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(91, 155, 213, 0.15);
+        }
+        
+        .option-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .option-icon {
+            font-size: 1.5rem;
+        }
+        
+        .option-details h4 {
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.25rem;
+        }
+        
+        .option-details p {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .option-action {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .option-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .nav-buttons {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .nav-button {
+            background: linear-gradient(135deg, #FFD700 0%, #5B9BD5 100%);
+            color: white;
+            padding: 1rem 2rem;
+            text-decoration: none;
+            border-radius: 12px;
+            margin: 0.5rem;
+            display: inline-block;
+            font-weight: 600;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            border: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            border-color: rgba(255,255,255,0.4);
+        }
+        
+        .visa-card-showcase {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .visa-card-showcase::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3e%3ctext x='50' y='50' text-anchor='middle' font-family='serif' font-size='40' fill='%23FFD700'%3eE%3c/text%3e%3c/svg%3e") repeat;
+            background-size: 80px 80px;
+            opacity: 0.05;
+            animation: float 30s infinite linear reverse;
+        }
+        
+        .visa-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+        }
+        
+        .visa-title {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #FFD700 0%, #FFFFFF 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .header { padding: 1.5rem; }
+            .header h1 { font-size: 2rem; }
+            .services-grid { grid-template-columns: 1fr; }
+            .logo { width: 48px; height: 48px; }
+            .nav-button { padding: 0.75rem 1.5rem; margin: 0.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo"></div>
+            <h1>Fast Pay</h1>
+        </div>
+        <p class="subtitle">National Digital Services Platform for Eswatini 🇸🇿</p>
+    </div>
+
+    <div class="container">
+        <div class="nav-buttons">
+            <a href="/" class="nav-button">🏠 Home</a>
+            <a href="/merchant" class="nav-button">🏪 Merchant Portal</a>
+            <a href="/docs" class="nav-button">📖 API Docs</a>
+        </div>
+
+        <div class="services-grid">
+            <!-- Utilities Section -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">🚰</div>
+                    <div>
+                        <div class="service-title">Utility Services</div>
+                        <div class="service-description">Water & Electricity Management</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showUtilityDemo('water')">
+                        <div class="option-info">
+                            <div class="option-icon">💧</div>
+                            <div class="option-details">
+                                <h4>EWSC Water Bills</h4>
+                                <p>Pay water bills, check usage, set up auto-pay</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Bill</button>
+                    </div>
+                    <div class="service-option" onclick="showUtilityDemo('electricity')">
+                        <div class="option-info">
+                            <div class="option-icon">⚡</div>
+                            <div class="option-details">
+                                <h4>EEC Electricity</h4>
+                                <p>Buy prepaid units, check balance, get tokens</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Buy Units</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Government Services -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">🏛️</div>
+                    <div>
+                        <div class="service-title">Government Services</div>
+                        <div class="service-description">Official Payments & Compliance</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showGovDemo('tax')">
+                        <div class="option-info">
+                            <div class="option-icon">💰</div>
+                            <div class="option-details">
+                                <h4>ERS Tax Payments</h4>
+                                <p>Income tax, VAT, licenses, permits</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Tax</button>
+                    </div>
+                    <div class="service-option" onclick="showGovDemo('fines')">
+                        <div class="option-info">
+                            <div class="option-icon">🚓</div>
+                            <div class="option-details">
+                                <h4>Police Fines</h4>
+                                <p>Traffic violations, court fees, clearances</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Fine</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Education Services -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">🎓</div>
+                    <div>
+                        <div class="service-title">Education Services</div>
+                        <div class="service-description">School & University Payments</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showEduDemo('university')">
+                        <div class="option-info">
+                            <div class="option-icon">🏫</div>
+                            <div class="option-details">
+                                <h4>UNESWA Fees</h4>
+                                <p>Tuition, accommodation, meal plans</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Fees</button>
+                    </div>
+                    <div class="service-option" onclick="showEduDemo('schools')">
+                        <div class="option-info">
+                            <div class="option-icon">📚</div>
+                            <div class="option-details">
+                                <h4>Primary & High Schools</h4>
+                                <p>School fees, transport, uniforms, exams</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Fees</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transport Services -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">🚌</div>
+                    <div>
+                        <div class="service-title">Transport Services</div>
+                        <div class="service-description">Public Transport Solutions</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showTransportDemo()">
+                        <div class="option-info">
+                            <div class="option-icon">🎫</div>
+                            <div class="option-details">
+                                <h4>EPTC Vouchers</h4>
+                                <p>Bus tickets, route planning, monthly passes</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Buy Ticket</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hospitality Services -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">🏨</div>
+                    <div>
+                        <div class="service-title">Hospitality Services</div>
+                        <div class="service-description">Hotels & Restaurants</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showHospitalityDemo('hotel')">
+                        <div class="option-info">
+                            <div class="option-icon">🛏️</div>
+                            <div class="option-details">
+                                <h4>Hotel Bookings</h4>
+                                <p>Search, book, and pay for accommodations</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Book Now</button>
+                    </div>
+                    <div class="service-option" onclick="showHospitalityDemo('restaurant')">
+                        <div class="option-info">
+                            <div class="option-icon">🍽️</div>
+                            <div class="option-details">
+                                <h4>Restaurant Payments</h4>
+                                <p>Pay bills, add tips, split payments</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Bill</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visa Card Showcase -->
+        <div class="visa-card-showcase">
+            <div class="visa-content">
+                <div class="visa-title">Fast Pay Visa Prepaid Cards 💳</div>
+                <p style="font-size: 1.125rem; margin-bottom: 2rem; opacity: 0.9;">
+                    Physical & Virtual Cards • International Usage • Youth Banking • Corporate Solutions
+                </p>
+                <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                    <button class="nav-button" onclick="showCardDemo('issue')" style="background: linear-gradient(135deg, #DC143C 0%, #FFD700 100%);">
+                        🎯 Issue Card
+                    </button>
+                    <button class="nav-button" onclick="showCardDemo('topup')" style="background: linear-gradient(135deg, #FFD700 0%, #5B9BD5 100%);">
+                        💰 Top Up
+                    </button>
+                    <button class="nav-button" onclick="showCardDemo('manage')" style="background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);">
+                        📊 Manage Cards
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Demo Results Area -->
+        <div id="demoResults" style="display: none;">
+            <div style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 2rem; border-radius: 20px; margin-top: 2rem;">
+                <h3 style="margin-bottom: 1rem; color: #1f2937;">Service Demo Results</h3>
+                <div id="demoContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function showUtilityDemo(type) {
+            const demoResults = document.getElementById('demoResults');
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'water') {
+                demoContent.innerHTML = `
+                    <h4>💧 EWSC Water Service Demo</h4>
+                    <p><strong>Account:</strong> 123456789</p>
+                    <p><strong>Current Balance:</strong> E450.75</p>
+                    <p><strong>Last Reading:</strong> 1250.5 kWh</p>
+                    <p><strong>Usage This Month:</strong> 30.2 kWh</p>
+                    <button onclick="processDemo('water-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #10b981; color: white; border: none; border-radius: 8px;">Pay E450.75</button>
+                `;
+            } else if (type === 'electricity') {
+                demoContent.innerHTML = `
+                    <h4>⚡ EEC Electricity Demo</h4>
+                    <p><strong>Meter:</strong> 987654321</p>
+                    <p><strong>Current Balance:</strong> E125.50</p>
+                    <p><strong>Estimated Days Remaining:</strong> 15 days</p>
+                    <p><strong>Tariff Rate:</strong> E0.85/kWh</p>
+                    <button onclick="processDemo('electricity-topup')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #f59e0b; color: white; border: none; border-radius: 8px;">Buy E200 Units</button>
+                `;
+            }
+            
+            demoResults.style.display = 'block';
+            demoResults.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showGovDemo(type) {
+            const demoResults = document.getElementById('demoResults');
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'tax') {
+                demoContent.innerHTML = `
+                    <h4>💰 ERS Tax Payment Demo</h4>
+                    <p><strong>Taxpayer ID:</strong> 1234567890</p>
+                    <p><strong>Outstanding Amount:</strong> E2,500.00</p>
+                    <p><strong>Penalties:</strong> E125.00</p>
+                    <p><strong>Total Due:</strong> E2,625.00</p>
+                    <button onclick="processDemo('tax-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #dc2626; color: white; border: none; border-radius: 8px;">Pay E2,625.00</button>
+                `;
+            } else if (type === 'fines') {
+                demoContent.innerHTML = `
+                    <h4>🚓 Police Fines Demo</h4>
+                    <p><strong>Fine ID:</strong> FINE_2024_001234</p>
+                    <p><strong>Violation:</strong> Speeding (Mbabane-Manzini Highway)</p>
+                    <p><strong>Fine Amount:</strong> E500.00</p>
+                    <p><strong>Penalty:</strong> E50.00</p>
+                    <p><strong>Total:</strong> E550.00</p>
+                    <button onclick="processDemo('fine-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #7c2d12; color: white; border: none; border-radius: 8px;">Pay E550.00</button>
+                `;
+            }
+            
+            demoResults.style.display = 'block';
+            demoResults.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showEduDemo(type) {
+            const demoResults = document.getElementById('demoResults');
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'university') {
+                demoContent.innerHTML = `
+                    <h4>🏫 UNESWA Payment Demo</h4>
+                    <p><strong>Student:</strong> Nomsa Dlamini (202012345)</p>
+                    <p><strong>Faculty:</strong> Science and Engineering</p>
+                    <p><strong>Tuition Balance:</strong> E8,500.00</p>
+                    <p><strong>Accommodation:</strong> E2,200.00</p>
+                    <p><strong>Total Outstanding:</strong> E10,700.00</p>
+                    <button onclick="processDemo('university-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border: none; border-radius: 8px;">Pay E8,500.00</button>
+                `;
+            } else if (type === 'schools') {
+                demoContent.innerHTML = `
+                    <h4>📚 School Fees Demo</h4>
+                    <p><strong>Student:</strong> Sipho Masilela (Grade 10A)</p>
+                    <p><strong>School:</strong> Mbabane High School</p>
+                    <p><strong>Tuition:</strong> E3,200.00</p>
+                    <p><strong>Transport:</strong> E450.00</p>
+                    <p><strong>Total:</strong> E3,650.00</p>
+                    <button onclick="processDemo('school-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #059669; color: white; border: none; border-radius: 8px;">Pay E3,650.00</button>
+                `;
+            }
+            
+            demoResults.style.display = 'block';
+            demoResults.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showTransportDemo() {
+            const demoContent = document.getElementById('demoContent');
+            
+            demoContent.innerHTML = `
+                <h4>🚌 EPTC Transport Demo</h4>
+                <p><strong>Route:</strong> Mbabane - Manzini</p>
+                <p><strong>Fare:</strong> E15.00</p>
+                <p><strong>Duration:</strong> 45 minutes</p>
+                <p><strong>Next Bus:</strong> 14:30</p>
+                <button onclick="processDemo('transport-voucher')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #7c3aed; color: white; border: none; border-radius: 8px;">Buy Voucher E15.00</button>
+            `;
+            
+            document.getElementById('demoResults').style.display = 'block';
+            document.getElementById('demoResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showHospitalityDemo(type) {
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'hotel') {
+                demoContent.innerHTML = `
+                    <h4>🏨 Hotel Booking Demo</h4>
+                    <p><strong>Hotel:</strong> Esibayeni Lodge, Ezulwini</p>
+                    <p><strong>Room:</strong> Standard Double</p>
+                    <p><strong>Check-in:</strong> Sept 1, 2024</p>
+                    <p><strong>Check-out:</strong> Sept 3, 2024</p>
+                    <p><strong>Total:</strong> E1,700.00 (2 nights)</p>
+                    <button onclick="processDemo('hotel-booking')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #be185d; color: white; border: none; border-radius: 8px;">Book & Pay E1,700.00</button>
+                `;
+            } else if (type === 'restaurant') {
+                demoContent.innerHTML = `
+                    <h4>🍽️ Restaurant Payment Demo</h4>
+                    <p><strong>Restaurant:</strong> Malandela's Restaurant</p>
+                    <p><strong>Table:</strong> T12</p>
+                    <p><strong>Bill Amount:</strong> E285.50</p>
+                    <p><strong>Suggested Tip:</strong> E42.50 (15%)</p>
+                    <p><strong>Total:</strong> E328.00</p>
+                    <button onclick="processDemo('restaurant-payment')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #ea580c; color: white; border: none; border-radius: 8px;">Pay E328.00</button>
+                `;
+            }
+            
+            document.getElementById('demoResults').style.display = 'block';
+            document.getElementById('demoResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showCardDemo(type) {
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'issue') {
+                demoContent.innerHTML = `
+                    <h4>💳 Issue Visa Card Demo</h4>
+                    <p><strong>Cardholder:</strong> John Dlamini</p>
+                    <p><strong>Card Type:</strong> Physical Prepaid</p>
+                    <p><strong>Daily Limit:</strong> E5,000.00</p>
+                    <p><strong>Monthly Limit:</strong> E50,000.00</p>
+                    <p><strong>Issue Fee:</strong> E50.00</p>
+                    <button onclick="processDemo('card-issue')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #1f2937; color: white; border: none; border-radius: 8px;">Issue Card E50.00</button>
+                `;
+            } else if (type === 'topup') {
+                demoContent.innerHTML = `
+                    <h4>💰 Card Top-Up Demo</h4>
+                    <p><strong>Card:</strong> ****1234 (John Dlamini)</p>
+                    <p><strong>Current Balance:</strong> E125.50</p>
+                    <p><strong>Top-Up Amount:</strong> E500.00</p>
+                    <p><strong>New Balance:</strong> E625.50</p>
+                    <button onclick="processDemo('card-topup')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #16a34a; color: white; border: none; border-radius: 8px;">Top Up E500.00</button>
+                `;
+            } else if (type === 'manage') {
+                demoContent.innerHTML = `
+                    <h4>📊 Card Management Demo</h4>
+                    <p><strong>Active Cards:</strong> 2</p>
+                    <p><strong>Total Balance:</strong> E1,250.00</p>
+                    <p><strong>This Month Spent:</strong> E3,420.00</p>
+                    <p><strong>Last Transaction:</strong> SuperSpar Mbabane - E125.50</p>
+                    <button onclick="processDemo('card-statement')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #4338ca; color: white; border: none; border-radius: 8px;">View Statement</button>
+                `;
+            }
+            
+            document.getElementById('demoResults').style.display = 'block';
+            document.getElementById('demoResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function processDemo(action) {
+            const demoContent = document.getElementById('demoContent');
+            
+            // Show processing animation
+            demoContent.innerHTML += `
+                <div style="margin-top: 1rem; padding: 1rem; background: #fef3c7; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                    <strong>Processing...</strong> Please wait while we process your request.
+                </div>
+            `;
+            
+            // Simulate processing delay
+            setTimeout(() => {
+                demoContent.innerHTML += `
+                    <div style="margin-top: 1rem; padding: 1rem; background: #dcfce7; border-radius: 8px; border-left: 4px solid #10b981;">
+                        <strong>✅ Payment Successful!</strong><br>
+                        Transaction ID: TXN_${Math.random().toString(36).substr(2, 9).toUpperCase()}<br>
+                        Date: ${new Date().toLocaleString()}<br>
+                        Status: Completed
+                    </div>
+                `;
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,4 +1,4 @@
-# Fast Pay 🇸🇿
+Yes# Fast Pay 🇸🇿
 ## Complete Payment System for Eswatini Businesses
 
 ### Executive Summary
