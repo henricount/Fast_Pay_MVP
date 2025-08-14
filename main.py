@@ -7,12 +7,16 @@ from datetime import datetime
 import json
 
 from app.models.database import (
-    get_db, init_db, Payment, Transaction, PaymentStatus
+    get_db, init_db, Payment, Transaction, PaymentStatus, Merchant, QRCode
 )
-from app.models.schemas import PaymentRequest, PaymentResponse
+from app.models.schemas import (
+    PaymentRequest, PaymentResponse, MerchantRegistration, MerchantResponse,
+    QRCodeRequest, QRCodeResponse, PaymentInitiation
+)
 from app.services.api_gateway import APIGateway
 from app.services.risk_engine import RiskEngine
 from app.services.payment_orchestrator import PaymentOrchestrator
+from app.services.merchant_service import MerchantService
 
 # FastAPI App
 app = FastAPI(
@@ -33,6 +37,132 @@ app.add_middleware(
 api_gateway = APIGateway()
 risk_engine = RiskEngine()
 orchestrator = PaymentOrchestrator()
+merchant_service = MerchantService()
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Railway"""
+    return {"status": "healthy", "service": "Fast Pay MVP"}
+
+# Merchant Management Endpoints
+
+@app.post("/api/v1/merchants/register", response_model=MerchantResponse)
+async def register_merchant(
+    registration: MerchantRegistration,
+    db: Session = Depends(get_db)
+):
+    """Register a new merchant"""
+    try:
+        merchant = merchant_service.register_merchant(registration, db)
+        
+        return MerchantResponse(
+            merchant_id=merchant.merchant_id,
+            business_name=merchant.business_name,
+            status=merchant.status.value,
+            api_key=merchant.api_key,
+            message=f"Merchant {merchant.business_name} registered successfully"
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/v1/merchants/{merchant_id}")
+async def get_merchant_details(merchant_id: str, db: Session = Depends(get_db)):
+    """Get merchant details"""
+    merchant = merchant_service.authenticate_merchant_id(merchant_id, db)
+    if not merchant:
+        raise HTTPException(status_code=404, detail="Merchant not found")
+    
+    return {
+        "merchant_id": merchant.merchant_id,
+        "business_name": merchant.business_name,
+        "business_type": merchant.business_type.value,
+        "owner_name": merchant.owner_name,
+        "phone": merchant.phone,
+        "email": merchant.email,
+        "status": merchant.status.value,
+        "fee_rate": merchant.fee_rate,
+        "created_at": merchant.created_at
+    }
+
+@app.post("/api/v1/merchants/{merchant_id}/qr-codes", response_model=QRCodeResponse)
+async def generate_qr_code(
+    merchant_id: str,
+    qr_request: QRCodeRequest,
+    db: Session = Depends(get_db)
+):
+    """Generate QR code for merchant"""
+    try:
+        qr_code = merchant_service.generate_qr_code(merchant_id, qr_request, db)
+        qr_data = merchant_service.generate_qr_data(qr_code)
+        
+        # In production, you'd generate actual QR code image
+        qr_url = f"https://api.qrserver.com/v1/create-qr-code/?data={qr_data}&size=200x200"
+        
+        return QRCodeResponse(
+            qr_code_id=qr_code.qr_code_id,
+            qr_code_data=qr_data,
+            qr_code_url=qr_url,
+            expires_at=qr_code.expires_at,
+            is_dynamic=qr_code.is_dynamic
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@app.get("/api/v1/merchants/{merchant_id}/qr-codes")
+async def get_merchant_qr_codes(merchant_id: str, db: Session = Depends(get_db)):
+    """Get all QR codes for merchant"""
+    qr_codes = merchant_service.get_merchant_qr_codes(merchant_id, db)
+    
+    return [
+        {
+            "qr_code_id": qr.qr_code_id,
+            "amount": qr.amount,
+            "description": qr.description,
+            "is_dynamic": qr.is_dynamic,
+            "expires_at": qr.expires_at,
+            "usage_count": qr.usage_count,
+            "max_usage": qr.max_usage,
+            "is_active": qr.is_active,
+            "created_at": qr.created_at
+        }
+        for qr in qr_codes
+    ]
+
+@app.post("/api/v1/payments/initiate", response_model=PaymentResponse)
+async def initiate_payment(
+    payment_initiation: PaymentInitiation,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db)
+):
+    """Initiate payment via QR code or direct"""
+    
+    # If QR code provided, validate it
+    if payment_initiation.qr_code_id:
+        try:
+            qr_code = merchant_service.validate_qr_code(payment_initiation.qr_code_id, db)
+            
+            # Use QR code amount if not provided
+            if qr_code.amount and not payment_initiation.amount:
+                payment_initiation.amount = qr_code.amount
+                
+            # Update usage count
+            merchant_service.increment_qr_usage(payment_initiation.qr_code_id, db)
+            
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    # Convert to standard payment request
+    payment_request = PaymentRequest(
+        merchant_id=payment_initiation.merchant_id,
+        customer_id=payment_initiation.customer_id,
+        amount=payment_initiation.amount,
+        currency="SZL",
+        payment_method=payment_initiation.payment_method,
+        customer_location=None
+    )
+    
+    # Process through normal payment pipeline
+    return await create_payment(payment_request, background_tasks, db)
 
 def log_transaction(db: Session, payment_id: str, step: str, status: str, details: dict):
     """Log each step of the payment process"""
@@ -48,7 +178,12 @@ def log_transaction(db: Session, payment_id: str, step: str, status: str, detail
 @app.on_event("startup")
 async def startup_event():
     """Initialize database on startup"""
-    init_db()
+    try:
+        init_db()
+        print("✅ Database initialized successfully")
+    except Exception as e:
+        print(f"⚠️ Database initialization warning: {e}")
+        # Continue anyway for serverless environments
 
 @app.post("/api/v1/payments", response_model=PaymentResponse)
 async def create_payment(
@@ -59,7 +194,7 @@ async def create_payment(
     """Main payment processing endpoint"""
 
     # Step 1: API Gateway - Authentication & Rate Limiting
-    if not api_gateway.authenticate_request(payment_request.merchant_id):
+    if not api_gateway.authenticate_request(payment_request.merchant_id, db):
         raise HTTPException(status_code=401, detail="Invalid merchant credentials")
 
     if not api_gateway.check_rate_limit(payment_request.merchant_id):
@@ -254,6 +389,15 @@ async def demo_frontend():
             return HTMLResponse(content=f.read())
     except FileNotFoundError:
         return HTMLResponse(content="<h1>Fast Pay MVP</h1><p>Demo interface loading...</p>")
+
+@app.get("/merchant", response_class=HTMLResponse)
+async def merchant_dashboard():
+    """Serve the merchant dashboard"""
+    try:
+        with open("app/static/merchant-dashboard.html", "r") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Merchant Dashboard</h1><p>Dashboard loading...</p>")
 
 if __name__ == "__main__":
     import uvicorn

@@ -1,4 +1,4 @@
-1# 🚀 Fast Pay MVP Deployment Guide
+# 🚀 Fast Pay MVP Deployment Guide
 
 This guide covers multiple deployment options for the Fast Pay MVP.
 

@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fast Pay - Merchant Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; background: #f8fafc; }
+        .header { background: #3b82f6; color: white; padding: 1rem 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+        .card { background: white; padding: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .tabs { display: flex; border-bottom: 1px solid #e5e7eb; margin-bottom: 2rem; }
+        .tab { padding: 1rem 2rem; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { border-bottom-color: #3b82f6; background: #eff6ff; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #2563eb; }
+        button.secondary { background: #6b7280; }
+        .status { padding: 12px; border-radius: 4px; margin-top: 16px; }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #dc2626; }
+        .info { background: #dbeafe; color: #1d4ed8; }
+        .qr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+        .qr-card { border: 1px solid #e5e7eb; padding: 1rem; border-radius: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { text-align: center; padding: 1.5rem; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #3b82f6; }
+        .stat-label { color: #6b7280; }
+        .merchant-id { background: #f3f4f6; padding: 8px; border-radius: 4px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏪 Fast Pay Merchant Dashboard</h1>
+        <div id="merchantInfo"></div>
+    </div>
+
+    <div class="container">
+        <!-- Login Section -->
+        <div id="loginSection" class="card">
+            <h2>Merchant Login</h2>
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('login')">Existing Merchant</div>
+                <div class="tab" onclick="switchTab('register')">New Registration</div>
+            </div>
+
+            <!-- Login Tab -->
+            <div id="loginTab" class="tab-content active">
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label>Merchant ID</label>
+                        <input type="text" id="loginMerchantId" placeholder="MERCH_STORE_123" required>
+                    </div>
+                    <button type="submit">Access Dashboard</button>
+                </form>
+            </div>
+
+            <!-- Registration Tab -->
+            <div id="registerTab" class="tab-content">
+                <form id="registrationForm">
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" id="businessName" placeholder="Manzini Grocery Store" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Business Type</label>
+                        <select id="businessType" required>
+                            <option value="">Select Type</option>
+                            <option value="retail">Retail</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="grocery">Grocery</option>
+                            <option value="service">Service</option>
+                            <option value="online">Online</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Owner Name</label>
+                        <input type="text" id="ownerName" placeholder="John Dlamini" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="phone" placeholder="+268 7612 3456" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" placeholder="john@manzinigrocery.sz" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="address" placeholder="123 Main Street, Manzini, Eswatini" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>ID Number</label>
+                        <input type="text" id="idNumber" placeholder="1234567890123" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Bank Account (Optional)</label>
+                        <input type="text" id="bankAccount" placeholder="1234567890">
+                    </div>
+                    <button type="submit">Register Business</button>
+                </form>
+            </div>
+
+            <div id="authResult"></div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <div id="dashboardSection" style="display: none;">
+            
+            <!-- Stats Overview -->
+            <div class="stats-grid">
+                <div class="card stat-card">
+                    <div class="stat-number" id="totalPayments">0</div>
+                    <div class="stat-label">Total Payments</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number" id="totalVolume">0 SZL</div>
+                    <div class="stat-label">Total Volume</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number" id="successRate">0%</div>
+                    <div class="stat-label">Success Rate</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-number" id="activeQRCodes">0</div>
+                    <div class="stat-label">Active QR Codes</div>
+                </div>
+            </div>
+
+            <!-- Dashboard Tabs -->
+            <div class="tabs">
+                <div class="tab active" onclick="switchDashboardTab('qr')">QR Codes</div>
+                <div class="tab" onclick="switchDashboardTab('payments')">Payments</div>
+                <div class="tab" onclick="switchDashboardTab('settings')">Settings</div>
+            </div>
+
+            <!-- QR Codes Tab -->
+            <div id="qrTab" class="tab-content active">
+                <div class="card">
+                    <h3>Generate New QR Code</h3>
+                    <form id="qrForm">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div class="form-group">
+                                <label>Amount (SZL)</label>
+                                <input type="number" id="qrAmount" placeholder="100.00" step="0.01">
+                                <small>Leave empty for dynamic amount</small>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" id="qrDescription" placeholder="Product purchase">
+                            </div>
+                            <div class="form-group">
+                                <label>Expires in (minutes)</label>
+                                <input type="number" id="qrExpiry" value="60" min="1">
+                            </div>
+                            <div class="form-group">
+                                <label>Max Usage</label>
+                                <input type="number" id="qrMaxUsage" value="1" min="1">
+                            </div>
+                        </div>
+                        <button type="submit">Generate QR Code</button>
+                    </form>
+                    <div id="qrResult"></div>
+                </div>
+
+                <div class="card">
+                    <h3>Your QR Codes</h3>
+                    <div id="qrList" class="qr-grid"></div>
+                </div>
+            </div>
+
+            <!-- Payments Tab -->
+            <div id="paymentsTab" class="tab-content">
+                <div class="card">
+                    <h3>Recent Payments</h3>
+                    <div id="paymentsList"></div>
+                </div>
+            </div>
+
+            <!-- Settings Tab -->
+            <div id="settingsTab" class="tab-content">
+                <div class="card">
+                    <h3>Merchant Information</h3>
+                    <div id="merchantDetails"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        let currentMerchant = null;
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+        }
+
+        function switchDashboardTab(tab) {
+            document.querySelectorAll('#dashboardSection .tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('#dashboardSection .tab-content').forEach(t => t.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tab + 'Tab').classList.add('active');
+            
+            if (tab === 'qr') loadQRCodes();
+            if (tab === 'payments') loadPayments();
+            if (tab === 'settings') loadMerchantDetails();
+        }
+
+        // Registration
+        document.getElementById('registrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const registrationData = {
+                business_name: document.getElementById('businessName').value,
+                business_type: document.getElementById('businessType').value,
+                owner_name: document.getElementById('ownerName').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                address: document.getElementById('address').value,
+                id_number: document.getElementById('idNumber').value,
+                bank_account: document.getElementById('bankAccount').value || null
+            };
+
+            try {
+                const response = await fetch('/api/v1/merchants/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(registrationData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('authResult').innerHTML = `
+                        <div class="status success">
+                            <strong>Registration Successful!</strong><br>
+                            Merchant ID: <span class="merchant-id">${result.merchant_id}</span><br>
+                            API Key: <span class="merchant-id">${result.api_key}</span><br>
+                            <strong>Save these credentials!</strong>
+                        </div>
+                    `;
+                    
+                    // Auto-login
+                    currentMerchant = result.merchant_id;
+                    showDashboard();
+                } else {
+                    document.getElementById('authResult').innerHTML = `
+                        <div class="status error">
+                            <strong>Registration Failed:</strong> ${result.detail}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `
+                    <div class="status error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const merchantId = document.getElementById('loginMerchantId').value;
+            
+            try {
+                const response = await fetch(`/api/v1/merchants/${merchantId}`);
+                
+                if (response.ok) {
+                    currentMerchant = merchantId;
+                    showDashboard();
+                } else {
+                    document.getElementById('authResult').innerHTML = `
+                        <div class="status error">
+                            <strong>Login Failed:</strong> Merchant not found
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('authResult').innerHTML = `
+                    <div class="status error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            document.getElementById('merchantInfo').innerHTML = `Logged in as: ${currentMerchant}`;
+            
+            loadStats();
+            loadQRCodes();
+        }
+
+        // Load stats
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/v1/analytics/dashboard');
+                const stats = await response.json();
+                
+                document.getElementById('totalPayments').textContent = stats.summary.total_payments;
+                document.getElementById('totalVolume').textContent = `${stats.summary.total_volume} SZL`;
+                document.getElementById('successRate').textContent = `${stats.summary.success_rate}%`;
+                
+                // Load QR code count
+                const qrResponse = await fetch(`/api/v1/merchants/${currentMerchant}/qr-codes`);
+                const qrCodes = await qrResponse.json();
+                document.getElementById('activeQRCodes').textContent = qrCodes.filter(qr => qr.is_active).length;
+                
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Generate QR Code
+        document.getElementById('qrForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const qrData = {
+                amount: document.getElementById('qrAmount').value ? parseFloat(document.getElementById('qrAmount').value) : null,
+                description: document.getElementById('qrDescription').value || null,
+                expires_in_minutes: parseInt(document.getElementById('qrExpiry').value),
+                max_usage: parseInt(document.getElementById('qrMaxUsage').value)
+            };
+
+            try {
+                const response = await fetch(`/api/v1/merchants/${currentMerchant}/qr-codes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(qrData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('qrResult').innerHTML = `
+                        <div class="status success">
+                            <strong>QR Code Generated!</strong><br>
+                            QR ID: ${result.qr_code_id}<br>
+                            <img src="${result.qr_code_url}" alt="QR Code" style="margin-top: 10px;"><br>
+                            <a href="${result.qr_code_url}" target="_blank">View Full Size</a>
+                        </div>
+                    `;
+                    
+                    // Refresh QR codes list
+                    loadQRCodes();
+                } else {
+                    document.getElementById('qrResult').innerHTML = `
+                        <div class="status error">
+                            <strong>Error:</strong> ${result.detail}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('qrResult').innerHTML = `
+                    <div class="status error">
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        // Load QR codes
+        async function loadQRCodes() {
+            if (!currentMerchant) return;
+            
+            try {
+                const response = await fetch(`/api/v1/merchants/${currentMerchant}/qr-codes`);
+                const qrCodes = await response.json();
+                
+                document.getElementById('qrList').innerHTML = qrCodes.map(qr => `
+                    <div class="qr-card">
+                        <h4>${qr.description || 'QR Code'}</h4>
+                        <p><strong>ID:</strong> ${qr.qr_code_id}</p>
+                        <p><strong>Amount:</strong> ${qr.amount ? qr.amount + ' SZL' : 'Dynamic'}</p>
+                        <p><strong>Type:</strong> ${qr.is_dynamic ? 'Dynamic' : 'Fixed'}</p>
+                        <p><strong>Usage:</strong> ${qr.usage_count}${qr.max_usage ? '/' + qr.max_usage : ''}</p>
+                        <p><strong>Status:</strong> ${qr.is_active ? '✅ Active' : '❌ Inactive'}</p>
+                        <p><strong>Created:</strong> ${new Date(qr.created_at).toLocaleDateString()}</p>
+                        ${qr.expires_at ? `<p><strong>Expires:</strong> ${new Date(qr.expires_at).toLocaleString()}</p>` : ''}
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('Error loading QR codes:', error);
+            }
+        }
+
+        // Load payments (placeholder)
+        async function loadPayments() {
+            document.getElementById('paymentsList').innerHTML = `
+                <div class="status info">
+                    <strong>Payment History:</strong><br>
+                    This feature shows payments processed through your QR codes and merchant ID.
+                    Currently showing demo data - in production this would fetch actual payment records.
+                </div>
+            `;
+        }
+
+        // Load merchant details
+        async function loadMerchantDetails() {
+            if (!currentMerchant) return;
+            
+            try {
+                const response = await fetch(`/api/v1/merchants/${currentMerchant}`);
+                const merchant = await response.json();
+                
+                document.getElementById('merchantDetails').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                        <div>
+                            <h4>Business Information</h4>
+                            <p><strong>Merchant ID:</strong> ${merchant.merchant_id}</p>
+                            <p><strong>Business Name:</strong> ${merchant.business_name}</p>
+                            <p><strong>Type:</strong> ${merchant.business_type}</p>
+                            <p><strong>Owner:</strong> ${merchant.owner_name}</p>
+                        </div>
+                        <div>
+                            <h4>Contact Details</h4>
+                            <p><strong>Phone:</strong> ${merchant.phone}</p>
+                            <p><strong>Email:</strong> ${merchant.email}</p>
+                            <p><strong>Status:</strong> ${merchant.status}</p>
+                            <p><strong>Fee Rate:</strong> ${(merchant.fee_rate * 100).toFixed(1)}%</p>
+                        </div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error('Error loading merchant details:', error);
+            }
+        }
+    </script>
+</body>
+</html>
