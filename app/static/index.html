@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Eswatini Payment System Demo</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 40px; background: #f8fafc; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: white; padding: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        .form-group { margin-bottom: 16px; }
+        label { display: block; margin-bottom: 4px; font-weight: 500; }
+        input, select { width: 100%; padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; }
+        button { background: #3b82f6; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #2563eb; }
+        .status { padding: 12px; border-radius: 4px; margin-top: 16px; }
+        .success { background: #dcfce7; color: #166534; }
+        .error { background: #fee2e2; color: #dc2626; }
+        .pending { background: #fef3c7; color: #92400e; }
+        .log { background: #f1f5f9; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 12px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Eswatini Payment System Demo</h1>
+
+        <div class="card">
+            <h2>Process Payment</h2>
+            <form id="paymentForm">
+                <div class="form-group">
+                    <label>Merchant ID</label>
+                    <input type="text" id="merchantId" value="MERCH_001" required>
+                </div>
+                <div class="form-group">
+                    <label>Customer ID</label>
+                    <input type="text" id="customerId" value="CUST_001" required>
+                </div>
+                <div class="form-group">
+                    <label>Amount (SZL)</label>
+                    <input type="number" id="amount" value="1000" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod">
+                        <option value="qr_code">QR Code</option>
+                        <option value="nfc">NFC Tap</option>
+                        <option value="card_tokenized">Tokenized Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Customer Location</label>
+                    <input type="text" id="location" value="Manzini">
+                </div>
+                <button type="submit">Process Payment</button>
+            </form>
+
+            <div id="result"></div>
+        </div>
+
+        <div class="card">
+            <h2>📊 System Analytics</h2>
+            <div id="analytics">Loading...</div>
+        </div>
+    </div>
+
+    <script>
+        // Process payment
+        document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = {
+                merchant_id: document.getElementById('merchantId').value,
+                customer_id: document.getElementById('customerId').value,
+                amount: parseFloat(document.getElementById('amount').value),
+                payment_method: document.getElementById('paymentMethod').value,
+                customer_location: document.getElementById('location').value
+            };
+
+            try {
+                const response = await fetch('/api/v1/payments', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('result').innerHTML = `
+                        <div class="status pending">
+                            <strong>Payment Initiated!</strong><br>
+                            Payment ID: ${result.payment_id}<br>
+                            Status: ${result.status}<br>
+                            ${result.message}
+                        </div>
+                    `;
+
+                    // Poll for status updates
+                    pollPaymentStatus(result.payment_id);
+                } else {
+                    document.getElementById('result').innerHTML = `
+                        <div class="status error">
+                            <strong>Error:</strong> ${result.detail}
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <div class="status error">
+                        <strong>Network Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        });
+
+        // Poll payment status
+        async function pollPaymentStatus(paymentId) {
+            const maxAttempts = 10;
+            let attempts = 0;
+
+            const poll = async () => {
+                try {
+                    const response = await fetch(`/api/v1/payments/${paymentId}`);
+                    const payment = await response.json();
+
+                    const statusClass = payment.status === 'completed' ? 'success' :
+                                      payment.status === 'failed' ? 'error' : 'pending';
+
+                    let logHtml = '';
+                    if (payment.transaction_log) {
+                        logHtml = `
+                            <div class="log">
+                                <strong>Transaction Log:</strong><br>
+                                ${payment.transaction_log.map(log =>
+                                    `${log.timestamp}: ${log.step} - ${log.status}`
+                                ).join('<br>')}
+                            </div>
+                        `;
+                    }
+
+                    let settlementHtml = '';
+                    if (payment.settlement_details) {
+                        const settlement = payment.settlement_details;
+                        settlementHtml = `
+                            <br><strong>Settlement Details:</strong><br>
+                            Rail: ${settlement.rail || payment.settlement_rail}<br>
+                            ${settlement.transaction_id ? `Transaction ID: ${settlement.transaction_id}<br>` : ''}
+                            ${settlement.fee ? `Fee: ${settlement.fee} SZL<br>` : ''}
+                            ${settlement.net_amount ? `Net Amount: ${settlement.net_amount} SZL<br>` : ''}
+                            ${settlement.settlement_time ? `Settlement: ${settlement.settlement_time}<br>` : ''}
+                        `;
+                    }
+
+                    document.getElementById('result').innerHTML = `
+                        <div class="status ${statusClass}">
+                            <strong>Payment Status: ${payment.status.toUpperCase()}</strong><br>
+                            Payment ID: ${payment.payment_id}<br>
+                            Amount: ${payment.amount} ${payment.currency}<br>
+                            ${payment.risk_score ? `Risk Score: ${payment.risk_score}<br>` : ''}
+                            ${payment.error_message ? `Error: ${payment.error_message}<br>` : ''}
+                            ${settlementHtml}
+                        </div>
+                        ${logHtml}
+                    `;
+
+                    if (payment.status === 'completed' || payment.status === 'failed' || attempts >= maxAttempts) {
+                        loadAnalytics(); // Refresh analytics
+                        return;
+                    }
+
+                    attempts++;
+                    setTimeout(poll, 1000);
+
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            };
+
+            poll();
+        }
+
+        // Load analytics
+        async function loadAnalytics() {
+            try {
+                const response = await fetch('/api/v1/analytics/dashboard');
+                const analytics = await response.json();
+
+                document.getElementById('analytics').innerHTML = `
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+                        <div>
+                            <h4>📈 Summary</h4>
+                            Total Payments: ${analytics.summary.total_payments}<br>
+                            Success Rate: ${analytics.summary.success_rate}%<br>
+                            Total Volume: ${analytics.summary.total_volume} SZL<br>
+                            Avg Transaction: ${analytics.summary.average_transaction} SZL
+                        </div>
+                        <div>
+                            <h4>🛤️ Settlement Rails</h4>
+                            Eswatini Switch: ${analytics.settlement_distribution.eswatini_switch}<br>
+                            Visa Direct: ${analytics.settlement_distribution.visa_direct}
+                        </div>
+                        <div>
+                            <h4>⚠️ Risk Distribution</h4>
+                            Low Risk: ${analytics.risk_distribution.low_risk}<br>
+                            Medium Risk: ${analytics.risk_distribution.medium_risk}<br>
+                            High Risk: ${analytics.risk_distribution.high_risk}
+                        </div>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('analytics').innerHTML = 'Error loading analytics';
+            }
+        }
+
+        // Load analytics on page load
+        loadAnalytics();
+    </script>
+</body>
+</html>
