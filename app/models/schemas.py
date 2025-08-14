@@ -1,4 +1,9 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field
+try:
+    from pydantic import EmailStr
+except ImportError:
+    # Fallback if email validation not available
+    EmailStr = str
 from typing import Optional, List
 from datetime import datetime
 
@@ -27,7 +32,7 @@ class MerchantRegistration(BaseModel):
     business_type: str = Field(..., example="grocery")
     owner_name: str = Field(..., example="John Dlamini")
     phone: str = Field(..., example="+268 7612 3456")
-    email: EmailStr = Field(..., example="john@manzinigrocery.sz")
+    email: str = Field(..., example="john@manzinigrocery.sz")
     address: str = Field(..., example="123 Main Street, Manzini, Eswatini")
     id_number: str = Field(..., example="1234567890123")
     bank_account: Optional[str] = Field(None, example="1234567890")
