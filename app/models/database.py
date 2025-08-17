@@ -106,3 +106,7 @@ def get_db():
 
 def init_db():
     Base.metadata.create_all(bind=engine)
+    
+    # Also create auth tables
+    from app.models.auth_models import Base as AuthBase
+    AuthBase.metadata.create_all(bind=engine)

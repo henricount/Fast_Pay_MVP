@@ -117,6 +117,15 @@ class AuthenticationService:
             # Create new user
             hashed_password = self.hash_password(registration_data.password)
             
+            # Convert Pydantic enum to SQLAlchemy enum
+            from app.models.auth_models import UserRole as SQLUserRole
+            role_mapping = {
+                "CITIZEN": SQLUserRole.CITIZEN,
+                "MERCHANT": SQLUserRole.MERCHANT,
+                "GOVERNMENT": SQLUserRole.GOVERNMENT,
+                "ADMIN": SQLUserRole.ADMIN
+            }
+            
             new_user = User(
                 email=registration_data.email.lower(),
                 phone=registration_data.phone,
@@ -129,7 +138,7 @@ class AuthenticationService:
                 city=registration_data.city,
                 address=registration_data.address,
                 postal_code=registration_data.postal_code,
-                role=registration_data.role,
+                role=role_mapping[registration_data.role.value],
                 email_verification_token=self.generate_verification_token(),
                 phone_verification_code=self.generate_verification_code()
             )

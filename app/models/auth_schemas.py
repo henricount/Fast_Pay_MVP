@@ -5,10 +5,10 @@ from enum import Enum
 
 # Enums
 class UserRole(str, Enum):
-    CITIZEN = "citizen"
-    MERCHANT = "merchant"
-    GOVERNMENT = "government"
-    ADMIN = "admin"
+    CITIZEN = "CITIZEN"
+    MERCHANT = "MERCHANT"
+    GOVERNMENT = "GOVERNMENT"
+    ADMIN = "ADMIN"
 
 class UserStatus(str, Enum):
     PENDING = "pending"
@@ -42,7 +42,7 @@ class UserRegistrationRequest(BaseModel):
     postal_code: Optional[str] = Field(None, example="H100")
     
     # Role
-    role: UserRole = Field(default=UserRole.CITIZEN, example="citizen")
+    role: UserRole = Field(default=UserRole.CITIZEN, example="CITIZEN")
     
     @validator('confirm_password')
     def passwords_match(cls, v, values, **kwargs):
