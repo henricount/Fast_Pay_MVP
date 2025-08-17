@@ -1,6 +1,6 @@
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, Field, validator
 from datetime import datetime, date
-from typing import Optional, List
+from typing import Optional, List, Dict
 from enum import Enum
 
 # Enums
@@ -82,7 +82,7 @@ class LoginRequest(BaseModel):
 class LoginResponse(BaseModel):
     success: bool = Field(..., example=True)
     message: str = Field(..., example="Login successful")
-    user: "UserProfile"
+    user: Optional[Dict] = Field(..., example={})  # Will be populated with UserProfile data
     access_token: str = Field(..., example="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...")
     refresh_token: str = Field(..., example="refresh_eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...")
     expires_in: int = Field(..., example=3600)
@@ -207,5 +207,4 @@ class ErrorResponse(BaseModel):
     error: str = Field(..., example="Authentication failed")
     details: Optional[str] = Field(None, example="Invalid email or password")
 
-# Configuration for forward references
-UserProfile.model_rebuild()
+# Remove forward reference configuration as we've fixed the circular reference

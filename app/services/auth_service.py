@@ -11,7 +11,7 @@ import json
 
 from app.models.auth_models import User, UserSession, LoginAttempt, UserActivity
 from app.models.auth_models import UserRole, UserStatus, VerificationStatus
-from app.models.auth_schemas import UserRegistrationRequest, LoginRequest, UserProfile
+from app.models.auth_schemas import UserRegistrationRequest, LoginRequest
 
 class AuthenticationService:
     def __init__(self):
@@ -214,22 +214,22 @@ class AuthenticationService:
             self.log_user_activity(user.user_id, "user_login", f"Successful login from {ip_address}", db)
             
             # Prepare response
-            user_profile = UserProfile(
-                user_id=user.user_id,
-                email=user.email,
-                phone=user.phone,
-                first_name=user.first_name,
-                last_name=user.last_name,
-                role=user.role,
-                status=user.status,
-                email_verified=user.email_verified,
-                phone_verified=user.phone_verified,
-                created_at=user.created_at,
-                last_login=user.last_login
-            )
+            user_data = {
+                "user_id": user.user_id,
+                "email": user.email,
+                "phone": user.phone,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": user.role.value,
+                "status": user.status.value,
+                "email_verified": user.email_verified,
+                "phone_verified": user.phone_verified,
+                "created_at": user.created_at.isoformat(),
+                "last_login": user.last_login.isoformat() if user.last_login else None
+            }
             
             return True, "Login successful", {
-                "user": user_profile,
+                "user": user_data,
                 "access_token": access_token,
                 "refresh_token": refresh_token,
                 "expires_in": int(self.access_token_expire_hours * 3600),
