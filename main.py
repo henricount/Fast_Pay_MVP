@@ -18,6 +18,7 @@ from app.services.risk_engine import RiskEngine
 from app.services.payment_orchestrator import PaymentOrchestrator
 from app.services.merchant_service import MerchantService
 from app.api.service_endpoints import router as service_router
+from app.api.auth_endpoints import router as auth_router
 
 # FastAPI App
 app = FastAPI(
@@ -36,6 +37,7 @@ app.add_middleware(
 
 # Include service endpoints
 app.include_router(service_router)
+app.include_router(auth_router)
 
 # Initialize services
 api_gateway = APIGateway()
@@ -412,6 +414,15 @@ async def services_dashboard():
             return HTMLResponse(content=f.read())
     except FileNotFoundError:
         return HTMLResponse(content="<h1>Services Dashboard</h1><p>Dashboard loading...</p>")
+
+@app.get("/auth", response_class=HTMLResponse)
+async def authentication_page():
+    """Serve the login/registration page"""
+    try:
+        with open("app/static/auth.html", "r") as f:
+            return HTMLResponse(content=f.read())
+    except FileNotFoundError:
+        return HTMLResponse(content="<h1>Authentication</h1><p>Login page loading...</p>")
 
 if __name__ == "__main__":
     import uvicorn

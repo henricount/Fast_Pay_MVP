@@ -395,25 +395,68 @@
                 </div>
             </div>
 
-            <!-- Transport Services -->
+            <!-- Communications & Postal Services -->
+            <div class="service-category">
+                <div class="service-header">
+                    <div class="service-icon">📬</div>
+                    <div>
+                        <div class="service-title">Communications & Postal</div>
+                        <div class="service-description">EPTC Services</div>
+                    </div>
+                </div>
+                <div class="service-options">
+                    <div class="service-option" onclick="showEPTCDemo('postal')">
+                        <div class="option-info">
+                            <div class="option-icon">📦</div>
+                            <div class="option-details">
+                                <h4>Postal Services</h4>
+                                <p>Stamps, parcels, PO Box rentals, registered mail</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Service</button>
+                    </div>
+                    <div class="service-option" onclick="showEPTCDemo('telecoms')">
+                        <div class="option-info">
+                            <div class="option-icon">📡</div>
+                            <div class="option-details">
+                                <h4>Telecommunications</h4>
+                                <p>Internet bills, landline services, infrastructure</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Pay Bill</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Transport Coupons -->
             <div class="service-category">
                 <div class="service-header">
                     <div class="service-icon">🚌</div>
                     <div>
-                        <div class="service-title">Transport Services</div>
-                        <div class="service-description">Public Transport Solutions</div>
+                        <div class="service-title">Transport Coupons</div>
+                        <div class="service-description">Bus & Commuter Omnibus System</div>
                     </div>
                 </div>
                 <div class="service-options">
-                    <div class="service-option" onclick="showTransportDemo()">
+                    <div class="service-option" onclick="showTransportDemo('coupon')">
                         <div class="option-info">
                             <div class="option-icon">🎫</div>
                             <div class="option-details">
-                                <h4>EPTC Vouchers</h4>
-                                <p>Bus tickets, route planning, monthly passes</p>
+                                <h4>Travel Coupons</h4>
+                                <p>Tap-to-pay for any registered bus or kombi</p>
                             </div>
                         </div>
-                        <button class="option-action">Buy Ticket</button>
+                        <button class="option-action">Buy Coupons</button>
+                    </div>
+                    <div class="service-option" onclick="showTransportDemo('monthly')">
+                        <div class="option-info">
+                            <div class="option-icon">📱</div>
+                            <div class="option-details">
+                                <h4>Monthly Passes</h4>
+                                <p>Unlimited travel, tap with phone or card</p>
+                            </div>
+                        </div>
+                        <button class="option-action">Buy Pass</button>
                     </div>
                 </div>
             </div>
@@ -570,17 +613,59 @@
             demoResults.scrollIntoView({ behavior: 'smooth' });
         }
 
-        async function showTransportDemo() {
+        async function showEPTCDemo(type) {
             const demoContent = document.getElementById('demoContent');
             
-            demoContent.innerHTML = `
-                <h4>🚌 EPTC Transport Demo</h4>
-                <p><strong>Route:</strong> Mbabane - Manzini</p>
-                <p><strong>Fare:</strong> E15.00</p>
-                <p><strong>Duration:</strong> 45 minutes</p>
-                <p><strong>Next Bus:</strong> 14:30</p>
-                <button onclick="processDemo('transport-voucher')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #7c3aed; color: white; border: none; border-radius: 8px;">Buy Voucher E15.00</button>
-            `;
+            if (type === 'postal') {
+                demoContent.innerHTML = `
+                    <h4>📦 EPTC Postal Services Demo</h4>
+                    <p><strong>Service:</strong> Registered Mail to South Africa</p>
+                    <p><strong>Weight:</strong> 2.5kg</p>
+                    <p><strong>Tracking:</strong> EP2024001234</p>
+                    <p><strong>Delivery:</strong> 3-5 business days</p>
+                    <p><strong>Cost:</strong> E85.00</p>
+                    <button onclick="processDemo('postal-service')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #0ea5e9; color: white; border: none; border-radius: 8px;">Pay E85.00</button>
+                `;
+            } else if (type === 'telecoms') {
+                demoContent.innerHTML = `
+                    <h4>📡 EPTC Telecommunications Demo</h4>
+                    <p><strong>Account:</strong> 2468-1357-9024</p>
+                    <p><strong>Service:</strong> Business Internet 100Mbps</p>
+                    <p><strong>Monthly Bill:</strong> E890.00</p>
+                    <p><strong>Due Date:</strong> August 31, 2024</p>
+                    <p><strong>Late Fee:</strong> E45.00 (if overdue)</p>
+                    <button onclick="processDemo('telecoms-bill')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #06b6d4; color: white; border: none; border-radius: 8px;">Pay E890.00</button>
+                `;
+            }
+            
+            document.getElementById('demoResults').style.display = 'block';
+            document.getElementById('demoResults').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function showTransportDemo(type) {
+            const demoContent = document.getElementById('demoContent');
+            
+            if (type === 'coupon') {
+                demoContent.innerHTML = `
+                    <h4>🎫 Transport Coupons Demo</h4>
+                    <p><strong>Coupon Pack:</strong> 10 Single Journey Coupons</p>
+                    <p><strong>Value:</strong> E15.00 per journey</p>
+                    <p><strong>Total Cost:</strong> E135.00 (10% discount)</p>
+                    <p><strong>Usage:</strong> Tap phone/card on any registered vehicle</p>
+                    <p><strong>Validity:</strong> 90 days from purchase</p>
+                    <button onclick="processDemo('transport-coupons')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #7c3aed; color: white; border: none; border-radius: 8px;">Buy Coupons E135.00</button>
+                `;
+            } else if (type === 'monthly') {
+                demoContent.innerHTML = `
+                    <h4>📱 Monthly Transport Pass Demo</h4>
+                    <p><strong>Pass Type:</strong> Unlimited Monthly Travel</p>
+                    <p><strong>Coverage:</strong> All registered buses & kombis</p>
+                    <p><strong>Tap Method:</strong> Phone NFC or Fast Pay card</p>
+                    <p><strong>Monthly Fee:</strong> E280.00</p>
+                    <p><strong>Savings:</strong> Up to E150/month vs individual trips</p>
+                    <button onclick="processDemo('monthly-pass')" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #059669; color: white; border: none; border-radius: 8px;">Buy Pass E280.00</button>
+                `;
+            }
             
             document.getElementById('demoResults').style.display = 'block';
             document.getElementById('demoResults').scrollIntoView({ behavior: 'smooth' });

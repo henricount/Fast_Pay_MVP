@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fast Pay - Login & Registration 🇸🇿</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3e%3crect width='300' height='40' fill='%235B9BD5'/%3e%3crect y='40' width='300' height='40' fill='%23FFD700'/%3e%3crect y='80' width='300' height='40' fill='%23DC143C'/%3e%3crect y='120' width='300' height='40' fill='%23FFD700'/%3e%3crect y='160' width='300' height='40' fill='%235B9BD5'/%3e%3cellipse cx='150' cy='100' rx='45' ry='30' fill='%23000000'/%3e%3cellipse cx='150' cy='100' rx='40' ry='25' fill='%23FFFFFF'/%3e%3crect x='140' y='85' width='20' height='30' fill='%23000000'/%3e%3cline x1='120' y1='100' x2='95' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cline x1='180' y1='100' x2='205' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cpolygon points='95,95 90,100 95,105' fill='%23A0522D'/%3e%3cpolygon points='205,95 210,100 205,105' fill='%23A0522D'/%3e%3ccircle cx='90' cy='100' r='8' fill='%23654321'/%3e%3ccircle cx='210' cy='100' r='8' fill='%23654321'/%3e%3ctext x='150' y='105' text-anchor='middle' font-family='serif' font-size='20' font-weight='bold' fill='%23FFD700'%3eE%3c/text%3e%3c/svg%3e">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .auth-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            width: 80px;
+            height: 80px;
+            background: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 300 200'%3e%3crect width='300' height='40' fill='%235B9BD5'/%3e%3crect y='40' width='300' height='40' fill='%23FFD700'/%3e%3crect y='80' width='300' height='40' fill='%23DC143C'/%3e%3crect y='120' width='300' height='40' fill='%23FFD700'/%3e%3crect y='160' width='300' height='40' fill='%235B9BD5'/%3e%3cellipse cx='150' cy='100' rx='45' ry='30' fill='%23000000'/%3e%3cellipse cx='150' cy='100' rx='40' ry='25' fill='%23FFFFFF'/%3e%3crect x='140' y='85' width='20' height='30' fill='%23000000'/%3e%3cline x1='120' y1='100' x2='95' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cline x1='180' y1='100' x2='205' y2='100' stroke='%23D2B48C' stroke-width='3'/%3e%3cpolygon points='95,95 90,100 95,105' fill='%23A0522D'/%3e%3cpolygon points='205,95 210,100 205,105' fill='%23A0522D'/%3e%3ccircle cx='90' cy='100' r='8' fill='%23654321'/%3e%3ccircle cx='210' cy='100' r='8' fill='%23654321'/%3e%3ctext x='150' y='105' text-anchor='middle' font-family='serif' font-size='20' font-weight='bold' fill='%23FFD700'%3eE%3c/text%3e%3c/svg%3e") center/cover;
+            border-radius: 16px;
+            margin: 0 auto 1rem;
+            border: 3px solid rgba(91, 155, 213, 0.3);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            color: #6b7280;
+            font-weight: 500;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            margin-bottom: 2rem;
+            background: #f3f4f6;
+            border-radius: 12px;
+            padding: 4px;
+        }
+        
+        .tab-button {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tab-button.active {
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #374151;
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #5B9BD5;
+            box-shadow: 0 0 0 3px rgba(91, 155, 213, 0.1);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #5B9BD5 0%, #DC143C 100%);
+            color: white;
+            border: none;
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 1rem;
+        }
+        
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        
+        .submit-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .nav-links {
+            text-align: center;
+            margin-top: 1.5rem;
+        }
+        
+        .nav-link {
+            color: #5B9BD5;
+            text-decoration: none;
+            margin: 0 1rem;
+            font-weight: 600;
+            transition: color 0.2s ease;
+        }
+        
+        .nav-link:hover {
+            color: #DC143C;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .success-message {
+            background: #dcfce7;
+            color: #16a34a;
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+        
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        @media (max-width: 768px) {
+            .auth-container { 
+                padding: 1.5rem; 
+                margin: 0.5rem;
+            }
+            .header h1 { font-size: 1.5rem; }
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="header">
+            <div class="logo"></div>
+            <h1>Fast Pay</h1>
+            <p>Secure Access to Eswatini's Digital Services 🇸🇿</p>
+        </div>
+
+        <div class="tab-buttons">
+            <button class="tab-button active" onclick="switchTab('login')">Login</button>
+            <button class="tab-button" onclick="switchTab('register')">Register</button>
+        </div>
+
+        <div id="messageContainer"></div>
+
+        <!-- Login Form -->
+        <div id="loginTab" class="tab-content active">
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" name="email" required 
+                           placeholder="john.dlamini@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" name="password" required
+                           placeholder="Your secure password">
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="rememberMe" name="remember_me"> 
+                        Remember me for 30 days
+                    </label>
+                </div>
+                
+                <button type="submit" class="submit-button">Login to Fast Pay</button>
+            </form>
+        </div>
+
+        <!-- Registration Form -->
+        <div id="registerTab" class="tab-content">
+            <form id="registerForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="firstName">First Name</label>
+                        <input type="text" id="firstName" name="first_name" required
+                               placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name</label>
+                        <input type="text" id="lastName" name="last_name" required
+                               placeholder="Dlamini">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" id="registerEmail" name="email" required
+                           placeholder="john.dlamini@example.com">
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <input type="tel" id="phone" name="phone" required
+                           placeholder="+26876543210">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="registerPassword">Password</label>
+                        <input type="password" id="registerPassword" name="password" required
+                               placeholder="Secure password">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirm_password" required
+                               placeholder="Confirm password">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idNumber">Eswatini ID Number (Optional)</label>
+                    <input type="text" id="idNumber" name="id_number" maxlength="13"
+                           placeholder="1234567890123">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="region">Region</label>
+                        <select id="region" name="region">
+                            <option value="">Select Region</option>
+                            <option value="hhohho">Hhohho</option>
+                            <option value="manzini">Manzini</option>
+                            <option value="shiselweni">Shiselweni</option>
+                            <option value="lubombo">Lubombo</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" name="city"
+                               placeholder="Mbabane">
+                    </div>
+                </div>
+                
+                <button type="submit" class="submit-button">Create Fast Pay Account</button>
+            </form>
+        </div>
+
+        <div class="nav-links">
+            <a href="/" class="nav-link">🏠 Home</a>
+            <a href="/services" class="nav-link">🚀 Services</a>
+            <a href="/merchant" class="nav-link">🏪 Merchant</a>
+        </div>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Remove active class from all buttons
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            
+            // Add active class to clicked button
+            event.target.classList.add('active');
+            
+            // Clear messages
+            clearMessages();
+        }
+
+        function showMessage(message, type = 'error') {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="${type}-message">${message}</div>`;
+        }
+
+        function clearMessages() {
+            document.getElementById('messageContainer').innerHTML = '';
+        }
+
+        function setLoading(formId, loading) {
+            const form = document.getElementById(formId);
+            if (loading) {
+                form.classList.add('loading');
+                form.querySelector('.submit-button').disabled = true;
+            } else {
+                form.classList.remove('loading');
+                form.querySelector('.submit-button').disabled = false;
+            }
+        }
+
+        // Login Form Handler
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            setLoading('loginForm', true);
+
+            const formData = new FormData(e.target);
+            const loginData = {
+                email: formData.get('email'),
+                password: formData.get('password'),
+                remember_me: formData.get('remember_me') === 'on'
+            };
+
+            try {
+                const response = await fetch('/api/v1/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(loginData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    // Store tokens
+                    localStorage.setItem('fast_pay_access_token', result.access_token);
+                    localStorage.setItem('fast_pay_refresh_token', result.refresh_token);
+                    localStorage.setItem('fast_pay_user', JSON.stringify(result.user));
+                    
+                    showMessage('Login successful! Redirecting...', 'success');
+                    
+                    // Redirect to services or dashboard
+                    setTimeout(() => {
+                        window.location.href = '/services';
+                    }, 1500);
+                } else {
+                    showMessage(result.detail || 'Login failed. Please try again.');
+                }
+            } catch (error) {
+                showMessage('Network error. Please check your connection.');
+            } finally {
+                setLoading('loginForm', false);
+            }
+        });
+
+        // Registration Form Handler
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+            setLoading('registerForm', true);
+
+            const formData = new FormData(e.target);
+            const registerData = {
+                email: formData.get('email'),
+                phone: formData.get('phone'),
+                password: formData.get('password'),
+                confirm_password: formData.get('confirm_password'),
+                first_name: formData.get('first_name'),
+                last_name: formData.get('last_name'),
+                id_number: formData.get('id_number') || null,
+                region: formData.get('region') || null,
+                city: formData.get('city') || null,
+                role: 'citizen'
+            };
+
+            // Client-side validation
+            if (registerData.password !== registerData.confirm_password) {
+                showMessage('Passwords do not match.');
+                setLoading('registerForm', false);
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/v1/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(registerData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showMessage('Registration successful! Please check your email for verification instructions.', 'success');
+                    
+                    // Switch to login tab after successful registration
+                    setTimeout(() => {
+                        switchTab('login');
+                        document.getElementById('loginEmail').value = registerData.email;
+                    }, 2000);
+                } else {
+                    showMessage(result.detail || 'Registration failed. Please try again.');
+                }
+            } catch (error) {
+                showMessage('Network error. Please check your connection.');
+            } finally {
+                setLoading('registerForm', false);
+            }
+        });
+
+        // Check if user is already logged in
+        if (localStorage.getItem('fast_pay_access_token')) {
+            showMessage('You are already logged in. Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '/services';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
